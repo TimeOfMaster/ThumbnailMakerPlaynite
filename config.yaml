@@ -1,1 +1,2 @@
-output_folder: "%UserProfile%\\Downloads"  # Replace with your desired output path, or leave empty for Downloads
+output_folder: ""  # Replace with your desired output path, or leave empty for Downloads
+catppuccin_flavor: "mocha"  # You can change this to "latte", "frappe", "macchiato", or "mocha"

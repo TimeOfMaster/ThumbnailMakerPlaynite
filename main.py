@@ -46,7 +46,7 @@ class ImageCropper:
         self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
         self.root.bind("<Configure>", self.resize_image)
 
-    def load_config(self):
+    def load_config(self): # BUG ads cwd in front of output folder if using config.yaml
         # Load configuration from config.yaml
         config_path = Path("config.yaml")
         if config_path.is_file():
