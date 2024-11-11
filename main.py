@@ -1,6 +1,7 @@
 import os
 import yaml
-from tkinter import Tk, Canvas, Button, filedialog, Frame
+from tkinter import Tk, Canvas, Button, filedialog, Frame, Toplevel
+from ttkbootstrap import Style
 from pathlib import Path
 from PIL import Image, ImageTk
 
@@ -8,7 +9,23 @@ class ImageCropper:
     def __init__(self, root):
         self.root = root
         self.root.title("Image Cropper")
-        
+
+        # Hardcoded color theme (Mocha with Mauve accent)
+        self.colors = {
+            "base": "#1E1E2E",
+            "mantle": "#181825",
+            "surface1": "#313244",
+            "text": "#CDD6F4",
+            "surface2": "#45475A",
+            "mauve": "#CBA6F7"  # Mauve accent color
+        }
+
+        # Load configuration (output folder only)
+        self.output_folder = self.load_output_folder()
+
+        # Set window background color
+        self.root.configure(bg=self.colors["base"])
+
         # Set desired crop size (fixed)
         self.target_width = 700
         self.target_height = 900
@@ -19,26 +36,38 @@ class ImageCropper:
         self.tk_image = None
         self.rect_start_x = self.rect_start_y = 0  # Offset within the rectangle during dragging
 
-        # Load configuration
-        self.output_folder = self.load_config()
-
         # Frame to hold the canvas and buttons
-        self.main_frame = Frame(root)
+        self.main_frame = Frame(root, bg=self.colors["base"])
         self.main_frame.pack(fill="both", expand=True)
         
         # Create and configure canvas
-        self.canvas = Canvas(self.main_frame, cursor="cross", bg="gray")
+        self.canvas = Canvas(
+            self.main_frame, 
+            cursor="cross", 
+            bg=self.colors["mantle"], 
+            highlightthickness=0
+        )
         self.canvas.pack(fill="both", expand=True, side="top")
 
         # Frame for buttons at the bottom
-        self.button_frame = Frame(root)
+        self.button_frame = Frame(root, bg=self.colors["base"])
         self.button_frame.pack(side="bottom", fill="x", pady=10)
 
         # Add buttons for loading image and cropping
-        self.load_button = Button(self.button_frame, text="Load Image", command=self.load_image)
+        self.load_button = Button(
+            self.button_frame, text="Load Image", command=self.load_image,
+            bg=self.colors["surface1"], fg=self.colors["text"],
+            activebackground=self.colors["surface2"], activeforeground=self.colors["text"],
+            relief="flat", bd=0
+        )
         self.load_button.pack(side="left", padx=10, pady=10)
         
-        self.crop_button = Button(self.button_frame, text="Crop and Save", command=self.crop_and_save, state="disabled")
+        self.crop_button = Button(
+            self.button_frame, text="Crop and Save", command=self.crop_and_save,
+            state="disabled", bg=self.colors["surface1"], fg=self.colors["text"],
+            activebackground=self.colors["surface2"], activeforeground=self.colors["text"],
+            relief="flat", bd=0
+        )
         self.crop_button.pack(side="right", padx=10, pady=10)
 
         # Bind mouse events for dragging the rectangle
@@ -46,15 +75,14 @@ class ImageCropper:
         self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
         self.root.bind("<Configure>", self.resize_image)
 
-    def load_config(self): # BUG ads cwd in front of output folder if using config.yaml
-        # Load configuration from config.yaml
+    def load_output_folder(self):
+        # Load output folder from config.yaml
         config_path = Path("config.yaml")
         if config_path.is_file():
             with open(config_path, "r") as file:
                 config = yaml.safe_load(file)
-            output_folder = config.get("output_folder")
-            if output_folder:
-                return Path(output_folder)
+            output_folder = config.get("output_folder", str(Path.home() / "Downloads"))
+            return Path(output_folder)
         # Default to Downloads folder if not specified
         return Path.home() / "Downloads"
 
@@ -78,7 +106,7 @@ class ImageCropper:
         self.rect = self.canvas.create_rectangle(
             self.rect_start_x, self.rect_start_y, 
             self.rect_start_x + self.target_width, self.rect_start_y + self.target_height, 
-            outline="red", width=2
+            outline=self.colors["mauve"], width=2  # Mauve accent color for selection rectangle
         )
 
     def resize_image(self, event):
@@ -101,7 +129,7 @@ class ImageCropper:
         self.rect = self.canvas.create_rectangle(
             self.rect_start_x, self.rect_start_y, 
             self.rect_start_x + self.target_width, self.rect_start_y + self.target_height, 
-            outline="red", width=2
+            outline=self.colors["mauve"], width=2  # Mauve accent color for selection rectangle
         )
 
     def on_button_press(self, event):
@@ -141,7 +169,6 @@ class ImageCropper:
 
         # Save the image to the configured output folder
         save_path = self.output_folder / "cropped_image.png"
-        resized_img.show()
         resized_img.save(save_path)
         print(f"Image saved as '{save_path}'.")
 
