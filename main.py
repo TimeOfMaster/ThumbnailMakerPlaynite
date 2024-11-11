@@ -1,7 +1,6 @@
 import os
 import yaml
-from tkinter import Tk, Canvas, Button, filedialog, Frame, Toplevel
-from ttkbootstrap import Style
+from tkinter import Tk, Canvas, Button, filedialog, Frame
 from pathlib import Path
 from PIL import Image, ImageTk
 
@@ -74,6 +73,9 @@ class ImageCropper:
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
         self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
         self.root.bind("<Configure>", self.resize_image)
+
+        # Center window and adjust size
+        self.center_window()
 
     def load_output_folder(self):
         # Load output folder from config.yaml
@@ -171,6 +173,21 @@ class ImageCropper:
         save_path = self.output_folder / "cropped_image.png"
         resized_img.save(save_path)
         print(f"Image saved as '{save_path}'.")
+
+    def center_window(self):
+        # Get the screen dimensions
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # Set window size to be 2/3 of the screen height
+        window_size = int(4 / 5 * screen_height)
+        
+        # Center the window on the screen
+        x = (screen_width - window_size) // 2
+        y = (screen_height - window_size) // 2
+
+        # Set the window geometry
+        self.root.geometry(f"{window_size}x{window_size}+{x}+{y}")
 
 # Run the GUI application
 root = Tk()
